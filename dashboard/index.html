@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Today</title>
+<meta name="apple-mobile-web-app-title" content="Today">
+<meta name="theme-color" content="#2c6b5a">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root{color-scheme:light dark;--bg:#f4f5f1;--ink:#1b2220;--muted:#5b6661;--accent:#2c6b5a}
+  @media (prefers-color-scheme:dark){:root{--bg:#101413;--ink:#e4eae7;--muted:#97a29d;--accent:#7cc4ad}}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,system-ui,sans-serif}
+  main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 16px;text-align:center}
+  img{width:72px;height:72px;border-radius:16px}
+  a{display:inline-block;padding:10px 18px;border-radius:10px;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:600}
+  p{margin:0;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+  <img src="apple-touch-icon.png" alt="">
+  <a id="go" href="https://claude.ai/artifact/Wy27hbaeqTCjDMAK55pMRL">Open dashboard</a>
+  <p id="msg">Opening…</p>
+</main>
+<script>
+  // Home-screen launcher for the Daily Dashboard. iOS takes the shortcut's icon from this page.
+  // Visit ?add to set it up: the page drops ?add from the address and waits, so Share → Add to
+  // Home Screen saves the plain URL. The plain URL sends you straight on to the dashboard.
+  (function () {
+    var target = document.getElementById("go").href, msg = document.getElementById("msg");
+    if (/[?&]add\b/.test(location.search)) {
+      history.replaceState(null, "", location.pathname);
+      msg.innerHTML = "Tap Share, then <b>Add to Home Screen</b>.<br>Turn off \u201cOpen as Web App\u201d if it\u2019s shown.";
+      return;
+    }
+    location.replace(target);
+  })();
+</script>
+</body>
+</html>
