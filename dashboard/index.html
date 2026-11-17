@@ -11,7 +11,6 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="manifest" href="manifest.webmanifest">
 <style>
   :root{color-scheme:light dark;--bg:#f4f5f1;--ink:#1b2220;--muted:#5b6661;--accent:#2c6b5a}
   @media (prefers-color-scheme:dark){:root{--bg:#101413;--ink:#e4eae7;--muted:#97a29d;--accent:#7cc4ad}}
@@ -36,8 +35,14 @@
   // Share -> Add to Home Screen saves /dashboard/#<id>.
   (function () {
     var go = document.getElementById("go"), msg = document.getElementById("msg");
-    var id = location.hash.slice(1);
-    if (!/^[A-Za-z0-9_-]{8,64}$/.test(id)) { msg.textContent = "No dashboard link."; return; }
+    // No web manifest on purpose: iOS would open its start_url and drop the #id. The id is also
+    // kept in this browser's storage at setup, in case iOS saves the shortcut without the #.
+    var ok = function (v) { return /^[A-Za-z0-9_-]{8,64}$/.test(v || ""); };
+    var id = location.hash.slice(1), saved = null;
+    try { saved = localStorage.getItem("dashboardId"); } catch (e) {}
+    if (ok(id)) { try { localStorage.setItem("dashboardId", id); } catch (e) {} }
+    else if (ok(saved)) id = saved;
+    else { msg.textContent = "No dashboard link. Open the setup link again."; return; }
     var target = "https://claude.ai/artifact/" + id;
     go.href = target; go.hidden = false;
     if (/[?&]add\b/.test(location.search)) {
