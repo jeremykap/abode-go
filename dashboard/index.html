@@ -16,6 +16,7 @@
   @media (prefers-color-scheme:dark){:root{--bg:#101413;--ink:#e4eae7;--muted:#97a29d;--accent:#7cc4ad}}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,system-ui,sans-serif}
   main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 16px;text-align:center}
+  [hidden]{display:none!important}
   img{width:72px;height:72px;border-radius:16px}
   a{display:inline-block;padding:10px 18px;border-radius:10px;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:600}
   p{margin:0;color:var(--muted);font-size:.9rem}
@@ -29,25 +30,25 @@
 </main>
 <script>
   // Home-screen launcher for the Daily Dashboard. iOS takes the shortcut's icon from this page.
-  // The dashboard's artifact id rides in the #fragment (never sent to the server, never stored
-  // here): /dashboard/#<id> forwards to https://claude.ai/artifact/<id>.
-  // Visit /dashboard/?add#<id> to set it up: the page drops ?add and waits, so
-  // Share -> Add to Home Screen saves /dashboard/#<id>.
+  // /dashboard/?d=<id> forwards to https://claude.ai/artifact/<id>. The id is only in the shortcut,
+  // never in this repo. It's in the query, not the #fragment, because iOS drops the fragment when
+  // it saves a Home Screen web app. No web manifest on purpose: iOS would open its start_url instead.
+  // Set up from /dashboard/?add&d=<id>: the page drops "add" and waits, so
+  // Share -> Add to Home Screen saves /dashboard/?d=<id>.
   (function () {
     var go = document.getElementById("go"), msg = document.getElementById("msg");
-    // No web manifest on purpose: iOS would open its start_url and drop the #id. The id is also
-    // kept in this browser's storage at setup, in case iOS saves the shortcut without the #.
+    var q = new URLSearchParams(location.search);
     var ok = function (v) { return /^[A-Za-z0-9_-]{8,64}$/.test(v || ""); };
-    var id = location.hash.slice(1), saved = null;
+    var id = q.get("d") || location.hash.slice(1), saved = null;
     try { saved = localStorage.getItem("dashboardId"); } catch (e) {}
     if (ok(id)) { try { localStorage.setItem("dashboardId", id); } catch (e) {} }
     else if (ok(saved)) id = saved;
     else { msg.textContent = "No dashboard link. Open the setup link again."; return; }
     var target = "https://claude.ai/artifact/" + id;
     go.href = target; go.hidden = false;
-    if (/[?&]add\b/.test(location.search)) {
-      history.replaceState(null, "", location.pathname + location.hash);
-      msg.innerHTML = "Tap Share, then <b>Add to Home Screen</b>.<br>Turn off \u201cOpen as Web App\u201d if it\u2019s shown.";
+    if (q.has("add")) {
+      history.replaceState(null, "", location.pathname + "?d=" + encodeURIComponent(id));
+      msg.innerHTML = "Tap Share, then <b>Add to Home Screen</b>.<br>Turn off \u201cOpen as Web App\u201d.";
       return;
     }
     location.replace(target);
