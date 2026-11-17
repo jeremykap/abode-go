@@ -25,17 +25,23 @@
 <body>
 <main>
   <img src="apple-touch-icon.png" alt="">
-  <a id="go" href="https://claude.ai/artifact/Wy27hbaeqTCjDMAK55pMRL">Open dashboard</a>
+  <a id="go" hidden>Open dashboard</a>
   <p id="msg">Opening…</p>
 </main>
 <script>
   // Home-screen launcher for the Daily Dashboard. iOS takes the shortcut's icon from this page.
-  // Visit ?add to set it up: the page drops ?add from the address and waits, so Share → Add to
-  // Home Screen saves the plain URL. The plain URL sends you straight on to the dashboard.
+  // The dashboard's artifact id rides in the #fragment (never sent to the server, never stored
+  // here): /dashboard/#<id> forwards to https://claude.ai/artifact/<id>.
+  // Visit /dashboard/?add#<id> to set it up: the page drops ?add and waits, so
+  // Share -> Add to Home Screen saves /dashboard/#<id>.
   (function () {
-    var target = document.getElementById("go").href, msg = document.getElementById("msg");
+    var go = document.getElementById("go"), msg = document.getElementById("msg");
+    var id = location.hash.slice(1);
+    if (!/^[A-Za-z0-9_-]{8,64}$/.test(id)) { msg.textContent = "No dashboard link."; return; }
+    var target = "https://claude.ai/artifact/" + id;
+    go.href = target; go.hidden = false;
     if (/[?&]add\b/.test(location.search)) {
-      history.replaceState(null, "", location.pathname);
+      history.replaceState(null, "", location.pathname + location.hash);
       msg.innerHTML = "Tap Share, then <b>Add to Home Screen</b>.<br>Turn off \u201cOpen as Web App\u201d if it\u2019s shown.";
       return;
     }
